@@ -11,16 +11,15 @@ An interactive CLI tool written in Go for building Typst documents into producti
 ## Usage
 
 ```sh
-go run typst-pdf-builder.go
+go run .
 ```
 
 The tool walks you through each step interactively:
 
 1. **Working directory** — path to your Typst project (defaults to the current directory)
-2. **Extraction rules** — loads `.typst-rules.json` if present (see below)
-3. **Project scan** — detects root `.typ` files and per-language folders automatically
-4. **Build target** — choose between building one or more languages or a multilingual booklet
-5. **Build options** — column count, media type, audience, production mode, and an optional cover image
+2. **Project scan** — detects root `.typ` files and per-language folders automatically
+3. **Build target** — choose between building one or more languages, a multilingual booklet, or changing the working directory
+4. **Build options** — column count, media type, audience, production mode, cover image, and optional extra Typst arguments
 
 ### Expected project structure
 
@@ -29,7 +28,7 @@ The tool walks you through each step interactively:
 ├── <lang>/                          # e.g. en/, de/, fr/
 │   ├── *.typ                        # main document(s)
 │   ├── snippets-vars/
-│   │   └── document-info-vars.typ   # document name / short product name
+│   │   └── document-info-vars.typ   # document name / full product name
 │   └── sharedResources/
 │       └── pdf-cover/
 │           ├── digital-front-cover.typ
@@ -37,7 +36,6 @@ The tool walks you through each step interactively:
 │           ├── printed-front-cover.typ
 │           └── printed-back-cover.typ
 ├── *.typ                            # root-level file(s) for multilingual booklets
-├── .typst-rules.json                # optional — custom extraction rules
 └── .resources/
     ├── a4-empty.pdf                 # required for multilingual digital builds
     └── a5-empty.pdf                 # required for multilingual printed builds
@@ -50,41 +48,36 @@ The tool walks you through each step interactively:
 | Columns | `1`, `2` | Passed to Typst as `--input columns=` (single-language builds only) |
 | Media | `digital`, `printed` | Controls which cover templates are used and the empty-page size |
 | Audience | any string | Passed to Typst as `--input audience=` (optional) |
-| Production | yes/no | Encrypts the output PDF if `BUILD_PASSWORD` env var is set |
+| Production | yes/no | Encrypts the output PDF if `TYPST_PDF_BUILD_PASSWORD` env var is set |
 | Cover image | file path | Passed to the front-cover template as `--input cover-image=` |
+| Extra Typst args | any flags | Appended to every `typst compile` call (covers + main document) |
 
-### Extraction rules (`.typst-rules.json`)
+### Main menu
 
-The tool reads document metadata (short product name, document name) from a variables file in each language folder. By default it uses built-in generic patterns. If your project has a `.typst-rules.json` in the same directory as the script, the tool will offer to use it instead.
+The main menu is shown after every build and offers:
 
-The file defines named rules, each with a regex `pattern` and a `matchMode` of `"first"` or `"all"`:
+- **Build one or more languages** — compile selected language folders individually
+- **Build multilingual booklet** — compile a root-level `.typ` file with covers from the `en/` folder
+- **Change working directory** — switch to a different Typst project without restarting
+- **Exit**
 
-```json
-{
-  "shortName": {
-    "pattern": "short-product-name\\s*=\\s*\"([^\"]*)\"",
-    "matchMode": "all"
-  },
-  "docName": {
-    "pattern": "document-name\\s*=\\s*\\[([^\\]]*)\\]",
-    "matchMode": "all"
-  },
-  "productArg": {
-    "pattern": "(?i)(foo|bar)",
-    "matchMode": "first"
-  }
-}
+The screen is cleared after a menu choice and after confirming "Build another document?" to keep the output readable.
+
+### Extra Typst arguments
+
+At the end of the build-options steps, you can supply arbitrary flags that will be forwarded to all `typst compile` invocations in that build. Arguments are shell-split, so quoted values with spaces work as expected:
+
 ```
-
-`productArg` is optional. When present, it enables a product code lookup where the short name is extracted from a keyed block matching the product argument rather than a flat pattern search.
+Extra args passed to all typst compile calls (Enter to skip) []: --font-path /my/fonts --input debug=true
+```
 
 ### Production mode & encryption
 
-When production mode is enabled, the tool reads the `BUILD_PASSWORD` environment variable and passes it to `qpdf` to encrypt the output with AES-256. If the variable is not set, an unprotected PDF is produced with a warning.
+When production mode is enabled, the tool reads the `TYPST_PDF_BUILD_PASSWORD` environment variable and passes it to `qpdf` to encrypt the output with AES-256. If the variable is not set, an unprotected PDF is produced with a warning.
 
 ```sh
-export BUILD_PASSWORD="your-secret"
-go run typst-pdf-builder.go
+export TYPST_PDF_BUILD_PASSWORD="your-secret"
+go run .
 ```
 
 ### Output
@@ -102,3 +95,15 @@ Multilingual builds produce:
 ```
 
 Intermediate PDFs (covers, raw compiled output) are removed automatically after assembly.
+
+## Source layout
+
+| File | Responsibility |
+|---|---|
+| `main.go` | Entry point, dependency check, directory prompt, main loop |
+| `ui.go` | Terminal colors, log helpers, `prompt`, `yesno`, `pickOne`, `clearScreen` |
+| `state.go` | Global state shared across all steps |
+| `scanner.go` | Project scan and scan-results display |
+| `menu.go` | Main menu, language selection, `.typ` file picker |
+| `params.go` | Build-option prompts and shell-split helper |
+| `build.go` | `typst` and `qpdf` invocations, PDF assembly and cleanup |
