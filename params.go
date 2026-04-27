@@ -65,7 +65,7 @@ func askCoverImage() {
 
 func askExtraTypstArgs() {
 	fmt.Println()
-	fmt.Printf("  %s%s▸ Extra Typst Arguments%s\n", bold, magenta, reset)
+	fmt.Printf("  %s%s▸ Extra Typst Arguments (for main Typst file only) %s\n", bold, magenta, reset)
 	separator()
 	raw := prompt("Extra args passed to all typst compile calls (Enter to skip)", "")
 	extraTypstArgs = shellSplit(raw)

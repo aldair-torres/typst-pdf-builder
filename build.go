@@ -114,7 +114,6 @@ func buildSingle(lang string) error {
 	}
 	frontArgs = append(frontArgs, coverArgs...)
 	frontArgs = append(frontArgs, "--root", ".")
-	frontArgs = append(frontArgs, extraTypstArgs...)
 	if err := runCmd(workDir, "typst", frontArgs...); err != nil {
 		return err
 	}
@@ -123,7 +122,6 @@ func buildSingle(lang string) error {
 	logInfo("Compiling back cover...")
 	backTyp := "./" + lang + "/sharedResources/pdf-cover/" + media + "-back-cover.typ"
 	backArgs := []string{"compile", backTyp, "--root", "."}
-	backArgs = append(backArgs, extraTypstArgs...)
 	if err := runCmd(workDir, "typst", backArgs...); err != nil {
 		return err
 	}
@@ -213,7 +211,6 @@ func buildMulti() error {
 	}
 	frontArgs = append(frontArgs, coverArgs...)
 	frontArgs = append(frontArgs, "--root", ".")
-	frontArgs = append(frontArgs, extraTypstArgs...)
 	if err := runCmd(workDir, "typst", frontArgs...); err != nil {
 		return err
 	}
@@ -222,7 +219,6 @@ func buildMulti() error {
 	logInfo("Compiling back cover (en)...")
 	backTyp := "./en/sharedResources/pdf-cover/" + media + "-back-cover.typ"
 	backArgs := []string{"compile", backTyp, "--root", "."}
-	backArgs = append(backArgs, extraTypstArgs...)
 	if err := runCmd(workDir, "typst", backArgs...); err != nil {
 		return err
 	}

@@ -77,6 +77,7 @@ func main() {
 				continue
 			}
 		case "multi":
+			logInfo("The multi-lingual booklet is always 2 columns.")
 			// no language selection needed
 		}
 
