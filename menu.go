@@ -93,6 +93,11 @@ func selectLanguages() bool {
 
 // pickLangTyp picks a .typ file from a language folder. Returns the filename.
 func pickLangTyp(lang string) string {
+	if selectedLangTyps != nil {
+		if typ, ok := selectedLangTyps[lang]; ok {
+			return typ
+		}
+	}
 	typs := langTypes[lang]
 	if len(typs) == 1 {
 		return typs[0]
@@ -102,6 +107,9 @@ func pickLangTyp(lang string) string {
 
 // pickRootTyp picks a root-level .typ file. Returns the filename.
 func pickRootTyp() string {
+	if selectedRootTypFile != "" {
+		return selectedRootTypFile
+	}
 	if len(rootTypes) == 1 {
 		return rootTypes[0]
 	}

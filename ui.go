@@ -27,11 +27,41 @@ func readLine() string {
 	return strings.TrimRight(line, "\r\n")
 }
 
-func logInfo(msg string)  { fmt.Printf("  %sℹ%s  %s\n", cyan, reset, msg) }
-func logOk(msg string)    { fmt.Printf("  %s✔%s  %s\n", green, reset, msg) }
-func logWarn(msg string)  { fmt.Printf("  %s⚠%s  %s\n", yellow, reset, msg) }
-func logErr(msg string)   { fmt.Fprintf(os.Stderr, "  %s✖%s  %s\n", red, reset, msg) }
-func separator()          { fmt.Printf("  %s───────────────────────────────────────────%s\n", dim, reset) }
+func logInfo(msg string) {
+	if buildLogActive {
+		buildLog.WriteString("[INFO] " + msg + "\n")
+		return
+	}
+	fmt.Printf("  %sℹ%s  %s\n", cyan, reset, msg)
+}
+func logOk(msg string) {
+	if buildLogActive {
+		buildLog.WriteString("[ OK ] " + msg + "\n")
+		return
+	}
+	fmt.Printf("  %s✔%s  %s\n", green, reset, msg)
+}
+func logWarn(msg string) {
+	if buildLogActive {
+		buildLog.WriteString("[WARN] " + msg + "\n")
+		return
+	}
+	fmt.Printf("  %s⚠%s  %s\n", yellow, reset, msg)
+}
+func logErr(msg string) {
+	if buildLogActive {
+		buildLog.WriteString("[ERR ] " + msg + "\n")
+		return
+	}
+	fmt.Fprintf(os.Stderr, "  %s✖%s  %s\n", red, reset, msg)
+}
+func separator() {
+	if buildLogActive {
+		buildLog.WriteString("─────────────────────────────────────────\n")
+		return
+	}
+	fmt.Printf("  %s───────────────────────────────────────────%s\n", dim, reset)
+}
 
 // prompt asks a free-text question with an optional default. Returns the answer.
 func prompt(question, defaultVal string) string {

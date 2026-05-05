@@ -10,12 +10,17 @@ import (
 	"time"
 )
 
-// runCmd runs a command in dir, wiring stdio to the terminal.
+// runCmd runs a command in dir. In GUI mode output is captured to buildLog.
 func runCmd(dir string, name string, args ...string) error {
 	cmd := exec.Command(name, args...)
 	cmd.Dir = dir
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
+	if buildLogActive {
+		cmd.Stdout = &buildLog
+		cmd.Stderr = &buildLog
+	} else {
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+	}
 	return cmd.Run()
 }
 
