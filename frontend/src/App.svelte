@@ -143,101 +143,119 @@
 
     <!-- Language selection (languages mode) -->
     {#if buildType === 'languages'}
-    <fieldset>
-      <legend><strong>Select Languages</strong></legend>
-      {#each langFolders as lang}
-      <label>
-        <input
-          type="checkbox"
-          checked={selectedLangs.includes(lang)}
-          onchange={() => toggleLang(lang)}
-        />
-        {lang}
-        {#if (langTypes[lang] ?? []).length > 1}
-          &nbsp;
-          <select bind:value={selectedLangTyps[lang]} style="display:inline-block;width:auto">
-            {#each langTypes[lang] as typ}
-              <option value={typ}>{typ}</option>
-            {/each}
-          </select>
-        {/if}
-      </label>
-      {/each}
-    </fieldset>
+    <details class="dropdown">
+      <summary>
+        {selectedLangs.length === 0 ? 'Select languages…' : selectedLangs.join(', ')}
+      </summary>
+      <ul>
+        {#each langFolders as lang}
+        <li>
+          <label>
+            <input
+              type="checkbox"
+              checked={selectedLangs.includes(lang)}
+              onchange={() => toggleLang(lang)}
+            />
+            {lang}
+            {#if (langTypes[lang] ?? []).length > 1}
+              &nbsp;
+              <select bind:value={selectedLangTyps[lang]} style="display:inline-block;width:auto">
+                {#each langTypes[lang] as typ}
+                  <option value={typ}>{typ}</option>
+                {/each}
+              </select>
+            {/if}
+          </label>
+        </li>
+        {/each}
+      </ul>
+    </details>
     {/if}
 
     <!-- Booklet selection (multi mode, only when >1 root typ) -->
     {#if buildType === 'multi' && rootTypes.length > 1}
-    <fieldset>
-      <legend><strong>Select Booklet</strong></legend>
-      {#each rootTypes as typ}
-      <label>
-        <input type="radio" name="rootTyp" value={typ} bind:group={selectedRootTyp} />
-        {typ}
-      </label>
-      {/each}
-    </fieldset>
+    <details class="dropdown">
+      <summary>
+        {selectedRootTyp || 'Select booklet…'}
+      </summary>
+      <ul>
+        {#each rootTypes as typ}
+        <li>
+          <label>
+            <input type="radio" name="rootTyp" value={typ} bind:group={selectedRootTyp} />
+            {typ}
+          </label>
+        </li>
+        {/each}
+      </ul>
+    </details>
     {/if}
 
     <!-- Build options -->
     <fieldset disabled={!folderSelected || scanning}>
       <legend><strong>Build Options</strong></legend>
 
-      {#if buildType !== 'multi'}
-      <fieldset>
-        <legend>Columns</legend>
-        <label>
-          <input type="radio" name="cols" value="1" bind:group={cols} />
-          1 column
-        </label>
-        <label>
-          <input type="radio" name="cols" value="2" bind:group={cols} />
-          2 columns
-        </label>
-      </fieldset>
-      {/if}
+      <div class="grid">
+        <div>
+          {#if buildType !== 'multi'}
+          <fieldset>
+            <legend>Columns</legend>
+            <label>
+              <input type="radio" name="cols" value="1" bind:group={cols} />
+              1 column
+            </label>
+            <label>
+              <input type="radio" name="cols" value="2" bind:group={cols} />
+              2 columns
+            </label>
+          </fieldset>
+          {/if}
 
-      <fieldset>
-        <legend>Media</legend>
-        <label>
-          <input type="radio" name="media" value="digital" bind:group={media} />
-          Digital
-        </label>
-        <label>
-          <input type="radio" name="media" value="printed" bind:group={media} />
-          Printed
-        </label>
-      </fieldset>
+          <fieldset>
+            <legend>Media</legend>
+            <label>
+              <input type="radio" name="media" value="digital" bind:group={media} />
+              Digital
+            </label>
+            <label>
+              <input type="radio" name="media" value="printed" bind:group={media} />
+              Printed
+            </label>
+          </fieldset>
 
-      <fieldset>
-        <legend>Production Mode</legend>
-        <label>
-          <input type="radio" name="production" value="false" bind:group={production} />
-          No
-        </label>
-        <label>
-          <input type="radio" name="production" value="true" bind:group={production} />
-          Yes
-        </label>
-      </fieldset>
+          <fieldset>
+            <legend>Production Mode</legend>
+            <label>
+              <input type="radio" name="production" value="false" bind:group={production} />
+              No
+            </label>
+            <label>
+              <input type="radio" name="production" value="true" bind:group={production} />
+              Yes
+            </label>
+          </fieldset>
+        </div>
 
-      <label>
-        Audience
-        <input type="text" bind:value={audience} placeholder="optional" />
-      </label>
+        <div>
+          <label>
+            Audience
+            <input type="text" bind:value={audience} placeholder="optional" />
+          </label>
 
-      <label>
-        Cover Image
-        <input type="text" bind:value={coverImage} placeholder="Path to cover image (optional)" />
-      </label>
+          <label>
+            Cover Image
+            <input type="text" bind:value={coverImage} placeholder="Path to cover image (optional)" />
+          </label>
 
-      <label>
-        Extra Typst Arguments
-        <input type="text" bind:value={extraArgs} placeholder="optional" />
-      </label>
+          <label>
+            Extra Typst Arguments
+            <input type="text" bind:value={extraArgs} placeholder="optional" />
+          </label>
+        </div>
+      </div>
 
       <button onclick={compile} disabled={!canCompile || building} aria-busy={building}>
-      {building ? 'Compiling…' : 'Compile'}
+        {building ? 'Compiling…' : 'Compile'}
       </button>
     </fieldset>
   </form>
