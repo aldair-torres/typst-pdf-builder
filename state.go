@@ -15,6 +15,11 @@ var (
 	production bool
 	coverImage string
 
+	product           string
+	publication       string
+	productLine2      string
+	publicationLine2  string
+
 	menuAction     string
 	selectedLangs  []string
 	extraTypstArgs []string

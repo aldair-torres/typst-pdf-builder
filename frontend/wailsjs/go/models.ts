@@ -10,6 +10,10 @@ export namespace main {
 	    audience: string;
 	    production: boolean;
 	    coverImage: string;
+	    product: string;
+	    publication: string;
+	    productLine2: string;
+	    publicationLine2: string;
 	    extraArgs: string;
 	
 	    static createFrom(source: any = {}) {
@@ -27,6 +31,10 @@ export namespace main {
 	        this.audience = source["audience"];
 	        this.production = source["production"];
 	        this.coverImage = source["coverImage"];
+	        this.product = source["product"];
+	        this.publication = source["publication"];
+	        this.productLine2 = source["productLine2"];
+	        this.publicationLine2 = source["publicationLine2"];
 	        this.extraArgs = source["extraArgs"];
 	    }
 	}
@@ -50,6 +58,8 @@ export namespace main {
 	    rootTypes: string[];
 	    langFolders: string[];
 	    langTypes: {[key: string]: string[]};
+	    product: string;
+	    publication: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new ScanResult(source);
@@ -60,6 +70,8 @@ export namespace main {
 	        this.rootTypes = source["rootTypes"];
 	        this.langFolders = source["langFolders"];
 	        this.langTypes = source["langTypes"];
+	        this.product = source["product"];
+	        this.publication = source["publication"];
 	    }
 	}
 

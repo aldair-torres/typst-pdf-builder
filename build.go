@@ -102,12 +102,25 @@ func buildSingle(lang string) error {
 		return err
 	}
 
+	if product != "" {
+		shortName = product
+	}
+	if publication != "" {
+		docName = publication
+	}
+
 	logInfo(fmt.Sprintf("Product: %s | Document: %s", shortName, docName))
 
 	// Cover args
 	coverArgs := []string{}
 	if coverImage != "" {
-		coverArgs = []string{"--input", "cover-image=" + coverImage}
+		coverArgs = append(coverArgs, "--input", "cover-image="+coverImage)
+	}
+	if productLine2 != "" {
+		coverArgs = append(coverArgs, "--input", "product-line2="+productLine2)
+	}
+	if publicationLine2 != "" {
+		coverArgs = append(coverArgs, "--input", "publication-line2="+publicationLine2)
 	}
 
 	// Front cover
@@ -202,9 +215,22 @@ func buildMulti() error {
 		return err
 	}
 
+	if product != "" {
+		shortName = product
+	}
+	if publication != "" {
+		docName = publication
+	}
+
 	coverArgs := []string{}
 	if coverImage != "" {
-		coverArgs = []string{"--input", "cover-image=" + coverImage}
+		coverArgs = append(coverArgs, "--input", "cover-image="+coverImage)
+	}
+	if productLine2 != "" {
+		coverArgs = append(coverArgs, "--input", "product-line2="+productLine2)
+	}
+	if publicationLine2 != "" {
+		coverArgs = append(coverArgs, "--input", "publication-line2="+publicationLine2)
 	}
 
 	// Front cover (en)

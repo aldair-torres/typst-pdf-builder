@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"path/filepath"
 
 	runtime "github.com/wailsapp/wails/v2/pkg/runtime"
 )
@@ -25,23 +26,29 @@ func (a *App) startup(ctx context.Context) {
 
 // ScanResult is returned to the frontend after scanning a project folder.
 type ScanResult struct {
-	RootTypes   []string            `json:"rootTypes"`
-	LangFolders []string            `json:"langFolders"`
-	LangTypes   map[string][]string `json:"langTypes"`
+	RootTypes       []string            `json:"rootTypes"`
+	LangFolders     []string            `json:"langFolders"`
+	LangTypes       map[string][]string `json:"langTypes"`
+	Product         string              `json:"product"`
+	Publication     string              `json:"publication"`
 }
 
 // BuildParams holds all user inputs for a build operation.
 type BuildParams struct {
-	Mode       string            `json:"mode"`       // "languages" | "multi"
-	Langs      []string          `json:"langs"`      // for "languages" mode
-	LangTyps   map[string]string `json:"langTyps"`   // selected .typ file per lang
-	RootTyp    string            `json:"rootTyp"`    // for "multi" mode
-	Cols       string            `json:"cols"`       // "1" | "2"
-	Media      string            `json:"media"`      // "digital" | "printed"
-	Audience   string            `json:"audience"`
-	Production bool              `json:"production"`
-	CoverImage string            `json:"coverImage"`
-	ExtraArgs  string            `json:"extraArgs"` // raw string, shell-split internally
+	Mode             string            `json:"mode"`             // "languages" | "multi"
+	Langs            []string          `json:"langs"`            // for "languages" mode
+	LangTyps         map[string]string `json:"langTyps"`         // selected .typ file per lang
+	RootTyp          string            `json:"rootTyp"`          // for "multi" mode
+	Cols             string            `json:"cols"`             // "1" | "2"
+	Media            string            `json:"media"`            // "digital" | "printed"
+	Audience         string            `json:"audience"`
+	Production       bool              `json:"production"`
+	CoverImage       string            `json:"coverImage"`
+	Product          string            `json:"product"`
+	Publication      string            `json:"publication"`
+	ProductLine2     string            `json:"productLine2"`
+	PublicationLine2 string            `json:"publicationLine2"`
+	ExtraArgs        string            `json:"extraArgs"` // raw string, shell-split internally
 }
 
 // BuildResult is returned to the frontend after a build.
@@ -66,11 +73,37 @@ func (a *App) OpenDirectory() string {
 func (a *App) ScanProject(dir string) ScanResult {
 	workDir = dir
 	scanProject()
+
+	product, publication := "", ""
+	if len(langFolders) > 0 {
+		lang := langFolders[0]
+		if indexOf(langFolders, "en") >= 0 {
+			lang = "en"
+		}
+		varsFile := filepath.Join(workDir, lang, "snippets-vars", "document-info-vars.typ")
+		docName, shortName, err := extractVars(varsFile)
+		if err == nil {
+			publication = docName
+			product = shortName
+		}
+	}
+
 	return ScanResult{
 		RootTypes:   rootTypes,
 		LangFolders: langFolders,
 		LangTypes:   langTypes,
+		Product:     product,
+		Publication: publication,
 	}
+}
+
+func indexOf(slice []string, item string) int {
+	for i, v := range slice {
+		if v == item {
+			return i
+		}
+	}
+	return -1
 }
 
 // Build runs the compile operation with the given parameters.
@@ -80,6 +113,10 @@ func (a *App) Build(p BuildParams) BuildResult {
 	audience = p.Audience
 	production = p.Production
 	coverImage = p.CoverImage
+	product = p.Product
+	publication = p.Publication
+	productLine2 = p.ProductLine2
+	publicationLine2 = p.PublicationLine2
 	extraTypstArgs = shellSplit(p.ExtraArgs)
 	selectedLangTyps = p.LangTyps
 	selectedRootTypFile = p.RootTyp

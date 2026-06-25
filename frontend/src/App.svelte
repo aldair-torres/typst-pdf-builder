@@ -18,6 +18,10 @@
   let production = $state('false')
   let audience = $state('')
   let coverImage = $state('')
+  let product = $state('')
+  let publication = $state('')
+  let productLine2 = $state('')
+  let publicationLine2 = $state('')
   let extraArgs = $state('')
 
   let building = $state(false)
@@ -54,6 +58,10 @@
       production = 'false'
       audience = ''
       coverImage = ''
+      product = ''
+      publication = ''
+      productLine2 = ''
+      publicationLine2 = ''
       extraArgs = ''
       buildResult = null
       showInvalidModal = false
@@ -64,6 +72,8 @@
     rootTypes = result.rootTypes ?? []
     langFolders = result.langFolders ?? []
     langTypes = result.langTypes ?? {}
+    product = result.product ?? ''
+    publication = result.publication ?? ''
     for (const lang of langFolders) {
       const typs = langTypes[lang] ?? []
       if (typs.length === 1) selectedLangTyps[lang] = typs[0]
@@ -95,6 +105,10 @@
         audience,
         production: production === 'true',
         coverImage,
+        product,
+        publication,
+        productLine2,
+        publicationLine2,
         extraArgs,
       })
     } catch (e) {
@@ -190,6 +204,31 @@
       </ul>
     </details>
     {/if}
+
+    <!-- Cover text -->
+    <fieldset disabled={!folderSelected || scanning}>
+      <legend><strong>Cover Text</strong></legend>
+      <div class="grid">
+        <label>
+          Product
+          <input type="text" bind:value={product} placeholder="e.g. Product name" />
+        </label>
+        <label>
+          Product line 2
+          <input type="text" bind:value={productLine2} placeholder="optional" />
+        </label>
+      </div>
+      <div class="grid">
+        <label>
+          Publication
+          <input type="text" bind:value={publication} placeholder="e.g. Publication name" />
+        </label>
+        <label>
+          Publication line 2
+          <input type="text" bind:value={publicationLine2} placeholder="optional" />
+        </label>
+      </div>
+    </fieldset>
 
     <!-- Build options -->
     <fieldset disabled={!folderSelected || scanning}>
