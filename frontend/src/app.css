@@ -1,1 +1,4 @@
-/* Pico CSS handles all styling */
+@import "tailwindcss";
+@plugin "daisyui" {
+  themes: dark --default;
+}
